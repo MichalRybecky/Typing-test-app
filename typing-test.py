@@ -30,6 +30,8 @@ def main():
 
     dur = 0
     wpm = 0
+
+    clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
 
     def redraw_window():
@@ -47,6 +49,10 @@ def main():
     while run:
         clock.tick(FPS)
         redraw_window()
+
+        if clock_reg % FPS == 0:
+            dur += 1
+        clock_reg += 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
