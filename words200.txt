@@ -2,7 +2,6 @@ the
 be
 of
 and
-a
 to
 in
 he
@@ -11,7 +10,6 @@ it
 that
 for
 they
-I
 with
 as
 not
@@ -198,3 +196,5 @@ course
 change
 help
 line
+nose
+phone

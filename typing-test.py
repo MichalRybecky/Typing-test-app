@@ -1,6 +1,7 @@
 # 27.8.2020
 # Typing Test
 
+import linecache
 import pygame
 import random
 import os
@@ -24,6 +25,18 @@ def collide(obj1, obj2):
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) != None
 
 
+def get_words(quantity, words_number):
+    word_list = []
+    for i in range(quantity):
+        rng = random.randint(1, words_number + 1)
+        word = linecache.getline('words200.txt', rng).strip()
+        if word == "" or word == "\\n":
+            continue
+        word_list.append(word)
+    return word_list
+
+
+
 def main():
     run = True
     click = False
@@ -33,6 +46,9 @@ def main():
 
     clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
+
+    word_list = get_words(300, 200)
+    print(word_list)
 
     def redraw_window():
         WIN.blit(BG, (0, 0))
