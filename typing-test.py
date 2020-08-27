@@ -14,9 +14,20 @@ pygame.display.set_caption("Typing Test")
 
 BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
+text_font = pygame.font.Font("abeezee.ttf", 40)
+
 
 FPS = 144
 clock = pygame.time.Clock()
+
+
+class Word(object):
+    def __init__(self, text):
+        self.text = text
+        self.width, self.height = text_font.size(self.text)
+        self.pos_x = 0
+        self.pos_y = 0
+        self.highlight = False
 
 
 def collide(obj1, obj2):
@@ -36,7 +47,6 @@ def get_words(quantity, words_number):
     return word_list
 
 
-
 def main():
     run = True
     click = False
@@ -48,9 +58,12 @@ def main():
 
     clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
-    text_font = pygame.font.Font("abeezee.ttf", 40)
 
     word_list = get_words(300, 200)
+
+    # Makes every word in wordlist a object
+    for word in word_list:
+        word = Word(word)
 
     def evaluate(current_word, text):
         print("evaluating, jk")
@@ -76,8 +89,6 @@ def main():
         WIN.blit(text_surface, (250, 540))
 
         # Displayed words
-        words_surface = text_font.render(current_word, True, (0, 0, 0))
-        WIN.blit(words_surface, (250, 200))
 
 
         pygame.display.update()
