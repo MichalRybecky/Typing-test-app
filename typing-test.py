@@ -15,7 +15,7 @@ pygame.display.set_caption("Typing Test")
 BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
 
-FPS = 120
+FPS = 144
 clock = pygame.time.Clock()
 
 
@@ -40,24 +40,45 @@ def get_words(quantity, words_number):
 def main():
     run = True
     click = False
+    text = ''
+    current_word = ''
 
     dur = 0
     wpm = 0
 
     clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
+    text_font = pygame.font.Font("abeezee.ttf", 40)
 
     word_list = get_words(300, 200)
-    print(word_list)
+
+    def evaluate(current_word, text):
+        print("evaluating, jk")
 
     def redraw_window():
         WIN.blit(BG, (0, 0))
 
         dur_label = label_font.render(f"{dur}", 1, (255, 255, 255))
         wpm_label = label_font.render(f"{wpm}", 1, (255, 255, 255))
-
         WIN.blit(dur_label, (30, 10))
         WIN.blit(wpm_label, (WIDTH - 100, 10))
+
+        # BG for displayed words
+        word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
+        pygame.draw.rect(WIN, (150, 150, 150), word_rect)
+
+        # BG for typed words
+        type_rect = pygame.Rect(200, 600, (WIDTH - 400), (HEIGHT - 800))
+        pygame.draw.rect(WIN, (150, 150, 150), type_rect)
+
+        # Typed text
+        text_surface = text_font.render(text, True, (0, 0, 0))
+        WIN.blit(text_surface, (250, 540))
+
+        # Displayed words
+        words_surface = text_font.render(current_word, True, (0, 0, 0))
+        WIN.blit(words_surface, (250, 200))
+
 
         pygame.display.update()
 
@@ -66,15 +87,32 @@ def main():
         clock.tick(FPS)
         redraw_window()
 
-        if clock_reg % FPS == 0:
-            dur += 1
+        if len(word_list):
+            current_word = word_list[0]
+            word_list.pop(0)
+        else:
+            # What if there are no more words in list
+            pass
+
+
+        if clock_reg == 0:
+            pass
+        else:
+            if clock_reg % FPS == 0:
+                dur += 1
         clock_reg += 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-
-    pass
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    evaluate(current_word, text)
+                    text = ''
+                elif event.key == pygame.K_BACKSPACE:
+                    text = text[:-1]
+                else:
+                    text += event.unicode
 
 
 def main_menu():
@@ -122,8 +160,6 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     click = False
-    pygame.quit()
-
 
 
 def settings_menu():
@@ -134,4 +170,6 @@ def post_menu():
     pass
 
 
-main_menu()
+if __name__ == '__main__':
+    main_menu()
+    pygame.quit()
