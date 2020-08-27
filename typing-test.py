@@ -26,9 +26,21 @@ def collide(obj1, obj2):
 
 def main():
     run = True
+    click = False
+
+    dur = 0
+    wpm = 0
+    label_font = pygame.font.Font("abeezee.ttf", 50)
 
     def redraw_window():
         WIN.blit(BG, (0, 0))
+
+        dur_label = label_font.render(f"{dur}", 1, (255, 255, 255))
+        wpm_label = label_font.render(f"{wpm}", 1, (255, 255, 255))
+
+        WIN.blit(dur_label, (30, 10))
+        WIN.blit(wpm_label, (WIDTH - 100, 10))
+
         pygame.display.update()
 
 
@@ -46,7 +58,6 @@ def main():
 def main_menu():
     run = True
     click = False
-    myfont = pygame.font.SysFont('Comic Sans MS', 30)
 
     while run:
         clock.tick(FPS)
