@@ -58,6 +58,8 @@ def main():
     text = ''
     current_word = ''
     word_control = 0
+    line_control = 1
+    started = False
 
     dur = 0
     wpm = 0
@@ -121,10 +123,15 @@ def main():
 
                 # Current word highlighter
                 if curr_word.text == current_word:
-                    word_highlight = pygame.Rect(x - 4, y, curr_word.width + 8, 48)
-                    pygame.draw.rect(WIN, (255, 255, 255), word_highlight)
+                    color = (255, 255, 255)
+                    # Commented out code make highlight box around current word
 
-                word_surface = text_font.render(curr_word.text, True, (0, 0, 0))
+                    # word_highlight = pygame.Rect(x - 4, y, curr_word.width + 8, 48)
+                    # pygame.draw.rect(WIN, (255, 255, 255), word_highlight)
+                else:
+                    color = (0, 0, 0)
+
+                word_surface = text_font.render(curr_word.text, True, color)
                 WIN.blit(word_surface, (x, y))
                 curr_word.x = x
                 curr_word.y = y
@@ -144,16 +151,16 @@ def main():
 
         current_word = word_list[word_control]
         print(current_word)
+        if started:
+            if dur != 0:
+                wpm = corr_words / (dur / 60)
 
-        if dur != 0:
-            wpm = corr_words / (dur / 60)
-
-        if clock_reg == 0:
-            pass
-        else:
-            if clock_reg % FPS == 0:
-                dur += 1
-        clock_reg += 1
+            if clock_reg == 0:
+                pass
+            else:
+                if clock_reg % FPS == 0:
+                    dur += 1
+            clock_reg += 1
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -173,6 +180,7 @@ def main():
                     text = text[:-1]
                 else:
                     text += event.unicode
+                    started = True
 
 
 def main_menu():
