@@ -14,7 +14,7 @@ pygame.display.set_caption("Typing Test")
 
 BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
-text_font = pygame.font.Font("abeezee.ttf", 40)
+text_font = pygame.font.Font("abeezee.ttf", 35)
 
 
 FPS = 144
@@ -27,6 +27,7 @@ class Word(object):
         self.width, self.height = text_font.size(self.text)
         self.pos_x = 0
         self.pos_y = 0
+        self.displayed = False
         self.highlight = False
 
 
@@ -50,11 +51,16 @@ def get_words(quantity, words_number):
 def main():
     run = True
     click = False
+    word_obj = []
+    i = 0
+
     text = ''
     current_word = ''
 
     dur = 0
     wpm = 0
+    correct_keyst = 0
+    incorrect_keyst = 0
 
     clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
@@ -64,6 +70,7 @@ def main():
     # Makes every word in wordlist a object
     for word in word_list:
         word = Word(word)
+        word_obj.append(word)
 
     def evaluate(current_word, text):
         print("evaluating, jk")
@@ -89,6 +96,24 @@ def main():
         WIN.blit(text_surface, (250, 540))
 
         # Displayed words
+        x, y = 210, 160
+        i = 1
+        while y < (HEIGHT - 300):
+            while True:
+                for word in word_obj:
+                    if word.text == word_list[i]:
+                        curr_word = word
+                word_surface = text_font.render(curr_word.text, True, (0, 0, 0))
+                WIN.blit(word_surface, (x, y))
+                if x + curr_word.width > WIDTH - 400:
+                    break
+                x += curr_word.width + 40
+                print(word.width)
+                i += 1
+            x = 210
+            y += 50
+
+
 
 
         pygame.display.update()
@@ -99,12 +124,8 @@ def main():
         redraw_window()
 
         if len(word_list):
-            current_word = word_list[0]
-            word_list.pop(0)
-        else:
-            # What if there are no more words in list
-            pass
-
+            current_word = word_list[i]
+            i += 1
 
         if clock_reg == 0:
             pass
