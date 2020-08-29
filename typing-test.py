@@ -96,20 +96,19 @@ def main():
         WIN.blit(text_surface, (250, 540))
 
         # Displayed words
-        x, y = 210, 160
-        i = 1
+        x, y = 210, 160 # x, y coords of the text
+        word_control = 1 # Moving through the word list one up
         while y < (HEIGHT - 300):
             while True:
                 for word in word_obj:
-                    if word.text == word_list[i]:
+                    if word.text == word_list[word_control]:
                         curr_word = word
+                if x + curr_word.width > WIDTH - 220:
+                    break
                 word_surface = text_font.render(curr_word.text, True, (0, 0, 0))
                 WIN.blit(word_surface, (x, y))
-                if x + curr_word.width > WIDTH - 400:
-                    break
-                x += curr_word.width + 40
-                print(word.width)
-                i += 1
+                x += curr_word.width + 35
+                word_control += 1
             x = 210
             y += 50
 
@@ -123,10 +122,6 @@ def main():
         clock.tick(FPS)
         redraw_window()
 
-        if len(word_list):
-            current_word = word_list[i]
-            i += 1
-
         if clock_reg == 0:
             pass
         else:
@@ -138,7 +133,7 @@ def main():
             if event.type == pygame.QUIT:
                 quit()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
                     evaluate(current_word, text)
                     text = ''
                 elif event.key == pygame.K_BACKSPACE:
