@@ -2,9 +2,10 @@
 # Typing Test
 
 import linecache
-import pygame
 import random
 import os
+import pygame
+
 
 pygame.init()
 
@@ -27,8 +28,9 @@ class Word(object):
         self.width, self.height = text_font.size(self.text)
         self.pos_x = 0
         self.pos_y = 0
-        self.displayed = False
         self.highlight = False
+        self.correctly_typed = False
+        self.incorrectly_typed = False
 
 
 def collide(obj1, obj2):
@@ -52,15 +54,17 @@ def main():
     run = True
     click = False
     word_obj = []
-    i = 0
 
     text = ''
     current_word = ''
+    word_control = 0
 
     dur = 0
     wpm = 0
-    correct_keyst = 0
-    incorrect_keyst = 0
+    corr_keyst = 0
+    incorr_keyst = 0
+    corr_words = 0
+    incorr_words = 0
 
     clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
@@ -72,8 +76,11 @@ def main():
         word = Word(word)
         word_obj.append(word)
 
-    def evaluate(current_word, text):
-        print("evaluating, jk")
+    def evaluate(current_word, typed_text):
+        if current_word == typed_text:
+            return True
+        else:
+            return False
 
     def redraw_window():
         WIN.blit(BG, (0, 0))
@@ -96,8 +103,8 @@ def main():
         WIN.blit(text_surface, (250, 540))
 
         # Displayed words
-        x, y = 210, 160 # x, y coords of the text
-        word_control = 1 # Moving through the word list one up
+        x, y = 220, 160 # x, y coords of the text
+        word_control = 0 # Moving through the word list one up
         while y < (HEIGHT - 300):
             while True:
                 for word in word_obj:
@@ -109,11 +116,8 @@ def main():
                 WIN.blit(word_surface, (x, y))
                 x += curr_word.width + 35
                 word_control += 1
-            x = 210
-            y += 50
-
-
-
+            x = 220
+            y += 62
 
         pygame.display.update()
 
@@ -121,6 +125,9 @@ def main():
     while run:
         clock.tick(FPS)
         redraw_window()
+
+        current_word = word_list[word_control]
+        print(current_word)
 
         if clock_reg == 0:
             pass
@@ -134,7 +141,11 @@ def main():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
-                    evaluate(current_word, text)
+                    if evaluate(current_word, text) == True:
+                        corr_words += 1
+                    else:
+                        corr_words += 1
+                    word_control += 1
                     text = ''
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
