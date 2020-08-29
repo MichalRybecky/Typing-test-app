@@ -129,6 +129,9 @@ def main():
         current_word = word_list[word_control]
         print(current_word)
 
+        if dur != 0:
+            wpm = corr_words / (dur / 60)
+
         if clock_reg == 0:
             pass
         else:
@@ -141,12 +144,15 @@ def main():
                 quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
+
+                    # Evaluation manipulation
                     if evaluate(current_word, text) == True:
                         corr_words += 1
                     else:
-                        corr_words += 1
+                        incorr_words += 1
                     word_control += 1
                     text = ''
+
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
                 else:
@@ -209,5 +215,5 @@ def post_menu():
 
 
 if __name__ == '__main__':
-    main_menu()
+    main()
     pygame.quit()
