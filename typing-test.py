@@ -26,9 +26,9 @@ class Word(object):
     def __init__(self, text):
         self.text = text
         self.width, self.height = text_font.size(self.text)
-        self.pos_x = 0
-        self.pos_y = 0
-        self.highlight = False
+        self.x = 0
+        self.y = 0
+        self.current = False
         self.correctly_typed = False
         self.incorrectly_typed = False
 
@@ -44,7 +44,7 @@ def get_words(quantity, words_number):
     for i in range(quantity):
         rng = random.randint(1, words_number + 1)
         word = linecache.getline('words200.txt', rng).strip()
-        if word == "" or word == "\\n":
+        if word == "" or word == "\\n" or word in word_list:
             continue
         word_list.append(word)
     return word_list
@@ -82,13 +82,19 @@ def main():
         else:
             return False
 
-    def redraw_window():
+    def redraw_window(current_word):
         WIN.blit(BG, (0, 0))
 
         dur_label = label_font.render(f"{dur}", 1, (255, 255, 255))
-        wpm_label = label_font.render(f"{wpm}", 1, (255, 255, 255))
+        wpm_label = label_font.render(f"{int(wpm)}", 1, (255, 255, 255))
         WIN.blit(dur_label, (30, 10))
         WIN.blit(wpm_label, (WIDTH - 100, 10))
+
+        # Temporary labels for (in)correct words
+        corr_label = label_font.render(f"{corr_words}", 1, (255, 255, 255))
+        incorr_label = label_font.render(f"{incorr_words}", 1, (255, 255, 255))
+        WIN.blit(corr_label, (30, HEIGHT - 70))
+        WIN.blit(incorr_label, (WIDTH - 100, HEIGHT - 70))
 
         # BG for displayed words
         word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
@@ -112,19 +118,29 @@ def main():
                         curr_word = word
                 if x + curr_word.width > WIDTH - 220:
                     break
+
+                # Current word highlighter
+                if curr_word.text == current_word:
+                    word_highlight = pygame.Rect(x - 4, y, curr_word.width + 8, 48)
+                    pygame.draw.rect(WIN, (255, 255, 255), word_highlight)
+
                 word_surface = text_font.render(curr_word.text, True, (0, 0, 0))
                 WIN.blit(word_surface, (x, y))
+                curr_word.x = x
+                curr_word.y = y
                 x += curr_word.width + 35
                 word_control += 1
             x = 220
             y += 62
+
+
 
         pygame.display.update()
 
 
     while run:
         clock.tick(FPS)
-        redraw_window()
+        redraw_window(current_word)
 
         current_word = word_list[word_control]
         print(current_word)
