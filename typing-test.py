@@ -70,6 +70,7 @@ def main():
 
     dur = 0
     wpm = 0
+    time_left = 10
     corr_keyst = 0
     incorr_keyst = 0
     corr_words = 0
@@ -90,10 +91,14 @@ def main():
         else:
             return False
 
+
     def redraw_window(current_word):
+        for word in word_obj:
+            if word.text == current_word:
+                current_word = word
         WIN.blit(BG, (0, 0))
 
-        dur_label = label_font.render(f"{dur}", 1, (255, 255, 255))
+        dur_label = label_font.render(f"{time_left}", 1, (255, 255, 255))
         wpm_label = label_font.render(f"{int(wpm)}", 1, (255, 255, 255))
         WIN.blit(dur_label, (30, 10))
         WIN.blit(wpm_label, (WIDTH - 100, 10))
@@ -128,7 +133,7 @@ def main():
                     break
 
                 # Current word highlighter
-                if curr_word.text == current_word:
+                if curr_word == current_word:
                     color = (255, 255, 255)
                     # Commented out code make highlight box around current word
 
@@ -152,6 +157,8 @@ def main():
                 elif curr_word.y == 408 and curr_word not in fifth_line:
                     fifth_line.append(curr_word)
 
+                if current_word.y == 284:
+                    line_change():
                 x += curr_word.width + 35
                 word_control += 1
             x = 220
@@ -164,6 +171,10 @@ def main():
         clock.tick(FPS)
         redraw_window(current_word)
 
+        if time_left == 0:
+            run = False
+            post_game(wpm)
+
         current_word = word_list[word_control]
         if started:
             if dur != 0:
@@ -174,6 +185,7 @@ def main():
             else:
                 if clock_reg % FPS == 0:
                     dur += 1
+                    time_left -= 1
             clock_reg += 1
 
         for event in pygame.event.get():
@@ -195,6 +207,33 @@ def main():
                 else:
                     text += event.unicode
                     started = True
+
+
+def post_game(wpm):
+    run = True
+    click = False
+
+    while run:
+        clock.tick(FPS)
+        WIN.blit(BG, (0, 0))
+        pos_x, pos_y = pygame.mouse.get_pos()
+
+        label_wpm = main_font.render(f"WPM: {int(wpm)}", 1, (255, 255, 255))
+        WIN.blit(label_wpm, ((WIDTH / 2) - 100, HEIGHT / 2))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    click = True
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    click = False
 
 
 def main_menu():
