@@ -55,10 +55,17 @@ def main():
     click = False
     word_obj = []
 
+    first_line = []
+    second_line = []
+    third_line = []
+    fourth_line = []
+    fifth_line = []
+
     text = ''
     current_word = ''
     word_control = 0
-    line_control = 1
+    clock_reg = 0
+
     started = False
 
     dur = 0
@@ -68,7 +75,6 @@ def main():
     corr_words = 0
     incorr_words = 0
 
-    clock_reg = 0
     label_font = pygame.font.Font("abeezee.ttf", 50)
 
     word_list = get_words(300, 200)
@@ -135,12 +141,21 @@ def main():
                 WIN.blit(word_surface, (x, y))
                 curr_word.x = x
                 curr_word.y = y
+                if curr_word.y == 160 and curr_word not in first_line:
+                    first_line.append(curr_word)
+                elif curr_word.y == 222 and curr_word not in second_line:
+                    second_line.append(curr_word)
+                elif curr_word.y == 284 and curr_word not in third_line:
+                    third_line.append(curr_word)
+                elif curr_word.y == 346 and curr_word not in fourth_line:
+                    fourth_line.append(curr_word)
+                elif curr_word.y == 408 and curr_word not in fifth_line:
+                    fifth_line.append(curr_word)
+
                 x += curr_word.width + 35
                 word_control += 1
             x = 220
             y += 62
-
-
 
         pygame.display.update()
 
@@ -150,7 +165,6 @@ def main():
         redraw_window(current_word)
 
         current_word = word_list[word_control]
-        print(current_word)
         if started:
             if dur != 0:
                 wpm = corr_words / (dur / 60)
@@ -228,14 +242,6 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONUP:
                 if event.button == 1:
                     click = False
-
-
-def settings_menu():
-    pass
-
-
-def post_menu():
-    pass
 
 
 if __name__ == '__main__':
