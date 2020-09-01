@@ -16,6 +16,8 @@ pygame.display.set_caption("Typing Test")
 BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
 text_font = pygame.font.Font("abeezee.ttf", 35)
+label_font = pygame.font.Font("abeezee.ttf", 50)
+
 
 
 FPS = 144
@@ -29,8 +31,7 @@ class Word(object):
         self.x = 0
         self.y = 0
         self.current = False
-        self.correctly_typed = False
-        self.incorrectly_typed = False
+        self.displayed = False
 
 
 def collide(obj1, obj2):
@@ -46,56 +47,59 @@ def get_words(quantity, words_number):
         word = linecache.getline('words200.txt', rng).strip()
         if word == "" or word == "\\n" or word in word_list:
             continue
+        word = Word(word)
         word_list.append(word)
     return word_list
+
+
+def word_setup(word_list):
+        x, y = 220, 160 # x, y coords of the text
+        word_control = 0 # Moving through the word list one up
+        while y < (HEIGHT - 300):
+            while True:
+                word = word_list[word_control]
+                if x + word.width > WIDTH - 220:
+                    break
+                word_list.append(word)
+                word.displayed = True
+                word.x = x
+                word.y = y
+                x += word.width + 35
+                word_control += 1
+            x = 220
+            y += 62
 
 
 def main():
     run = True
     click = False
-    word_obj = []
-
-    first_line = []
-    second_line = []
-    third_line = []
-    fourth_line = []
-    fifth_line = []
+    word_list = []
 
     text = ''
-    current_word = ''
     word_control = 0
     clock_reg = 0
 
     started = False
+    curr_word_control = 0
 
     dur = 0
     wpm = 0
     time_left = 10
-    corr_keyst = 0
-    incorr_keyst = 0
     corr_words = 0
     incorr_words = 0
 
-    label_font = pygame.font.Font("abeezee.ttf", 50)
-
     word_list = get_words(300, 200)
+    word_setup(word_list)
 
-    # Makes every word in wordlist a object
-    for word in word_list:
-        word = Word(word)
-        word_obj.append(word)
 
     def evaluate(current_word, typed_text):
         if current_word == typed_text:
+            print("True")
             return True
-        else:
-            return False
 
 
-    def redraw_window(current_word):
-        for word in word_obj:
-            if word.text == current_word:
-                current_word = word
+
+    def redraw_window():
         WIN.blit(BG, (0, 0))
 
         dur_label = label_font.render(f"{time_left}", 1, (255, 255, 255))
@@ -122,64 +126,37 @@ def main():
         WIN.blit(text_surface, (250, 540))
 
         # Displayed words
-        x, y = 220, 160 # x, y coords of the text
-        word_control = 0 # Moving through the word list one up
-        while y < (HEIGHT - 300):
-            while True:
-                for word in word_obj:
-                    if word.text == word_list[word_control]:
-                        curr_word = word
-                if x + curr_word.width > WIDTH - 220:
-                    break
-
-                # Current word highlighter
-                if curr_word == current_word:
+        for word in word_list:
+            if word.displayed == True:
+                if word.current == True:
                     color = (255, 255, 255)
-                    # Commented out code make highlight box around current word
-
-                    # word_highlight = pygame.Rect(x - 4, y, curr_word.width + 8, 48)
-                    # pygame.draw.rect(WIN, (255, 255, 255), word_highlight)
                 else:
                     color = (0, 0, 0)
-
-                word_surface = text_font.render(curr_word.text, True, color)
-                WIN.blit(word_surface, (x, y))
-                curr_word.x = x
-                curr_word.y = y
-                if curr_word.y == 160 and curr_word not in first_line:
-                    first_line.append(curr_word)
-                elif curr_word.y == 222 and curr_word not in second_line:
-                    second_line.append(curr_word)
-                elif curr_word.y == 284 and curr_word not in third_line:
-                    third_line.append(curr_word)
-                elif curr_word.y == 346 and curr_word not in fourth_line:
-                    fourth_line.append(curr_word)
-                elif curr_word.y == 408 and curr_word not in fifth_line:
-                    fifth_line.append(curr_word)
-
-                if current_word.y == 284:
-                    line_change():
-                x += curr_word.width + 35
-                word_control += 1
-            x = 220
-            y += 62
+                word_surface = text_font.render(word.text, True, color)
+                WIN.blit(word_surface, (word.x, word.y))
 
         pygame.display.update()
 
 
     while run:
         clock.tick(FPS)
-        redraw_window(current_word)
+        redraw_window()
+
+        for word in word_list:
+            if word.current == True:
+                word.current = False
+
+        current_word = word_list[curr_word_control]
+        current_word.current = True
+
 
         if time_left == 0:
             run = False
             post_game(wpm)
 
-        current_word = word_list[word_control]
         if started:
             if dur != 0:
                 wpm = corr_words / (dur / 60)
-
             if clock_reg == 0:
                 pass
             else:
@@ -195,11 +172,11 @@ def main():
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
 
                     # Evaluation manipulation
-                    if evaluate(current_word, text) == True:
+                    if evaluate(current_word.text, text) == True:
                         corr_words += 1
                     else:
                         incorr_words += 1
-                    word_control += 1
+                    curr_word_control += 1
                     text = ''
 
                 elif event.key == pygame.K_BACKSPACE:
