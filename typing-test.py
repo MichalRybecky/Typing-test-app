@@ -67,9 +67,20 @@ def word_setup(word_list):
             word.y = y
             x += word.width + 35
 
+
 def line_change(word_list):
+    # Moves the words up a line
     for word in word_list:
         word.y -= 62
+
+
+def keystroke_validation(current_word, text):
+    # Checks each keypress, if the key is correct
+    text_lenght = len(text)
+    curr_word_striped = current_word[:text_lenght]
+    if text != curr_word_striped:
+        return False
+
 
 
 def main():
@@ -89,6 +100,8 @@ def main():
     time_left = 60
     corr_words = 0
     incorr_words = 0
+    corr_keyst = 0
+    incorr_keyst = 0
 
     word_list = get_words(300, 200)
     word_setup(word_list)
@@ -166,7 +179,7 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
 
-                    # Evaluation manipulation
+                    # Validation manipulation
                     if current_word.text == text:
                         corr_words += 1
                     else:
@@ -179,7 +192,11 @@ def main():
                     text = text[:-1]
                 else:
                     text += event.unicode
-                    started = True
+                    if started == False:
+                        started = True
+                    if keystroke_validation(current_word.text, text) == False:
+                        incorr_keyst += 1
+                        print("wrong")
 
 
 def post_game(wpm):
