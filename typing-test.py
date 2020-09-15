@@ -53,21 +53,34 @@ def get_words(quantity, words_number):
 
 
 def word_setup(word_list):
-        x, y = 220, 160 # x, y coords of the text
-        word_control = 0 # Moving through the word list one up
-        while y < (HEIGHT - 300):
-            while True:
-                word = word_list[word_control]
-                if x + word.width > WIDTH - 220:
-                    break
-                word_list.append(word)
-                word.displayed = True
-                word.x = x
-                word.y = y
-                x += word.width + 35
-                word_control += 1
+    # word_list_modif = word_list.copy()
+    # x, y = 220, 160 # x, y coords of the text
+    # word_control = 0 # Moving through the word list one up
+    # while len(word_list_modif) > 0:
+    #     word = word_list_modif.pop()
+    #     if x + word.width > WIDTH - 220:
+    #         word_list.insert(0, word)
+    #         break
+    #     word.x = x
+    #     word.y = y
+    #     if word.y < (HEIGHT - 300):
+    #         word.displayed = True
+    #     x += word.width + 35
+    # x = 220
+    # y += 62
+
+    x, y = 220, 160
+    for word in word_list:
+        if x + word.width > WIDTH - 220:
+            word.x = 220
             x = 220
+            x += word.width + 35
             y += 62
+            word.y = y
+        else:
+            word.x = x
+            word.y = y
+            x += word.width + 35
 
 
 def main():
@@ -84,20 +97,12 @@ def main():
 
     dur = 0
     wpm = 0
-    time_left = 10
+    time_left = 60
     corr_words = 0
     incorr_words = 0
 
     word_list = get_words(300, 200)
     word_setup(word_list)
-
-
-    def evaluate(current_word, typed_text):
-        if current_word == typed_text:
-            print("True")
-            return True
-
-
 
     def redraw_window():
         WIN.blit(BG, (0, 0))
@@ -125,10 +130,17 @@ def main():
         text_surface = text_font.render(text, True, (0, 0, 0))
         WIN.blit(text_surface, (250, 540))
 
+        '''
+        All words have y value, if the value is from .. to .., display the word, if its
+        higher (lower on the screen), do not display it. When the current word y coord is .. (3rd line),
+        loop through the word list and increment the y coord by .. for every word.
+        Check, which words are within the display box and continue.
+        '''
+
         # Displayed words
         for word in word_list:
-            if word.displayed == True:
-                if word.current == True:
+            if 50 < word.y < 450:
+                if word.current:
                     color = (255, 255, 255)
                 else:
                     color = (0, 0, 0)
@@ -148,6 +160,7 @@ def main():
 
         current_word = word_list[curr_word_control]
         current_word.current = True
+        print(current_word.text)
 
 
         if time_left == 0:
@@ -157,9 +170,7 @@ def main():
         if started:
             if dur != 0:
                 wpm = corr_words / (dur / 60)
-            if clock_reg == 0:
-                pass
-            else:
+            if clock_reg != 0:
                 if clock_reg % FPS == 0:
                     dur += 1
                     time_left -= 1
@@ -172,7 +183,7 @@ def main():
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
 
                     # Evaluation manipulation
-                    if evaluate(current_word.text, text) == True:
+                    if current_word.text == text:
                         corr_words += 1
                     else:
                         incorr_words += 1
