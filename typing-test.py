@@ -30,6 +30,7 @@ class Word(object):
         self.width, self.height = text_font.size(self.text)
         self.x = 0
         self.y = 0
+        self.wrong = False
         self.current = False
         self.displayed = False
 
@@ -53,22 +54,6 @@ def get_words(quantity, words_number):
 
 
 def word_setup(word_list):
-    # word_list_modif = word_list.copy()
-    # x, y = 220, 160 # x, y coords of the text
-    # word_control = 0 # Moving through the word list one up
-    # while len(word_list_modif) > 0:
-    #     word = word_list_modif.pop()
-    #     if x + word.width > WIDTH - 220:
-    #         word_list.insert(0, word)
-    #         break
-    #     word.x = x
-    #     word.y = y
-    #     if word.y < (HEIGHT - 300):
-    #         word.displayed = True
-    #     x += word.width + 35
-    # x = 220
-    # y += 62
-
     x, y = 220, 160
     for word in word_list:
         if x + word.width > WIDTH - 220:
@@ -81,6 +66,10 @@ def word_setup(word_list):
             word.x = x
             word.y = y
             x += word.width + 35
+
+def line_change(word_list):
+    for word in word_list:
+        word.y -= 62
 
 
 def main():
@@ -130,18 +119,13 @@ def main():
         text_surface = text_font.render(text, True, (0, 0, 0))
         WIN.blit(text_surface, (250, 540))
 
-        '''
-        All words have y value, if the value is from .. to .., display the word, if its
-        higher (lower on the screen), do not display it. When the current word y coord is .. (3rd line),
-        loop through the word list and increment the y coord by .. for every word.
-        Check, which words are within the display box and continue.
-        '''
-
         # Displayed words
         for word in word_list:
-            if 50 < word.y < 450:
+            if 150 < word.y < 450:
                 if word.current:
                     color = (255, 255, 255)
+                elif word.wrong:
+                    color = (255, 0, 0)
                 else:
                     color = (0, 0, 0)
                 word_surface = text_font.render(word.text, True, color)
@@ -160,8 +144,8 @@ def main():
 
         current_word = word_list[curr_word_control]
         current_word.current = True
-        print(current_word.text)
-
+        if current_word.y == 284:
+            line_change(word_list)
 
         if time_left == 0:
             run = False
@@ -187,6 +171,7 @@ def main():
                         corr_words += 1
                     else:
                         incorr_words += 1
+                        current_word.wrong = True
                     curr_word_control += 1
                     text = ''
 
