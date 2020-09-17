@@ -82,7 +82,6 @@ def keystroke_validation(current_word, text):
         return False
 
 
-
 def main():
     run = True
     click = False
@@ -135,7 +134,7 @@ def main():
         # Displayed words
         for word in word_list:
             if 150 < word.y < 450:
-                if word.current:
+                if word.current and word.wrong == False:
                     color = (255, 255, 255)
                 elif word.wrong:
                     color = (255, 0, 0)
@@ -194,9 +193,11 @@ def main():
                     text += event.unicode
                     if started == False:
                         started = True
-                    if keystroke_validation(current_word.text, text) == False:
-                        incorr_keyst += 1
-                        print("wrong")
+                if keystroke_validation(current_word.text, text) == False:
+                    incorr_keyst += 1
+                    current_word.wrong = True
+                else:
+                    current_word.wrong = False
 
 
 def post_game(wpm):
