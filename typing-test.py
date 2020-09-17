@@ -92,6 +92,7 @@ def main():
     clock_reg = 0
 
     started = False
+    typing_line_x = 0
     curr_word_control = 0
 
     dur = 0
@@ -143,19 +144,26 @@ def main():
                 word_surface = text_font.render(word.text, True, color)
                 WIN.blit(word_surface, (word.x, word.y))
 
+        # Typing line
+        if current_word.wrong == False:
+            typing_line_x = (current_word.x - 2) + text_surface.get_width()
+        typing_line = pygame.Rect(typing_line_x, current_word.y, 2, 40)
+        pygame.draw.rect(WIN, (255, 192, 84), typing_line)
+
         pygame.display.update()
 
 
     while run:
         clock.tick(FPS)
-        redraw_window()
-
         for word in word_list:
-            if word.current == True:
+            if word.current:
                 word.current = False
 
         current_word = word_list[curr_word_control]
         current_word.current = True
+
+        redraw_window()
+
         if current_word.y == 284:
             line_change(word_list)
 
@@ -198,6 +206,7 @@ def main():
                     current_word.wrong = True
                 else:
                     current_word.wrong = False
+                    corr_keyst += 1
 
 
 def post_game(wpm):
