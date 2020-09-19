@@ -114,8 +114,8 @@ def main():
         WIN.blit(wpm_label, (WIDTH - 100, 10))
 
         # Temporary labels for (in)correct words
-        corr_label = label_font.render(f"{corr_words}", 1, (255, 255, 255))
-        incorr_label = label_font.render(f"{incorr_words}", 1, (255, 255, 255))
+        corr_label = label_font.render(f"{corr_keyst}", 1, (255, 255, 255))
+        incorr_label = label_font.render(f"{incorr_keyst}", 1, (255, 255, 255))
         WIN.blit(corr_label, (30, HEIGHT - 70))
         WIN.blit(incorr_label, (WIDTH - 100, HEIGHT - 70))
 
@@ -189,7 +189,9 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
                     # Validation manipulation
-                    if current_word.text == text:
+                    if text == "":
+                        break
+                    elif current_word.text == text:
                         corr_words += 1
                     else:
                         incorr_words += 1
@@ -198,6 +200,10 @@ def main():
                     text = ''
                 elif event.key == pygame.K_BACKSPACE:
                     text = text[:-1]
+                    if keystroke_validation(current_word.text, text) == False:
+                        current_word.wrong = True
+                    else:
+                        current_word.wrong = False
                 else:
                     text += event.unicode
                     if started == False:
@@ -320,5 +326,5 @@ def settings_menu():
 
 
 if __name__ == '__main__':
-    main_menu()
+    main()
     pygame.quit()
