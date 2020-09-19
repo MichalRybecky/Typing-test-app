@@ -16,8 +16,6 @@ pygame.display.set_caption("Typing Test")
 BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
 text_font = pygame.font.Font("abeezee.ttf", 35)
-label_font = pygame.font.Font("abeezee.ttf", 50)
-
 
 
 FPS = 144
@@ -96,11 +94,12 @@ def main():
 
     dur = 0
     wpm = 0
-    time_left = 60
+    time_left = 10
     corr_words = 0
     incorr_words = 0
     corr_keyst = 0
     incorr_keyst = 0
+    total_keyst = 0
 
     word_list = get_words(300, 200)
     word_setup(word_list)
@@ -108,14 +107,14 @@ def main():
     def redraw_window():
         WIN.blit(BG, (0, 0))
 
-        dur_label = label_font.render(f"{time_left}", 1, (255, 255, 255))
-        wpm_label = label_font.render(f"{int(wpm)}", 1, (255, 255, 255))
+        dur_label = main_font.render(f"{time_left}", 1, (255, 255, 255))
+        wpm_label = main_font.render(f"{int(wpm)}", 1, (255, 255, 255))
         WIN.blit(dur_label, (30, 10))
         WIN.blit(wpm_label, (WIDTH - 100, 10))
 
         # Temporary labels for (in)correct words
-        corr_label = label_font.render(f"{corr_keyst}", 1, (255, 255, 255))
-        incorr_label = label_font.render(f"{incorr_keyst}", 1, (255, 255, 255))
+        corr_label = main_font.render(f"{corr_keyst}", 1, (255, 255, 255))
+        incorr_label = main_font.render(f"{incorr_keyst}", 1, (255, 255, 255))
         WIN.blit(corr_label, (30, HEIGHT - 70))
         WIN.blit(incorr_label, (WIDTH - 100, HEIGHT - 70))
 
@@ -146,11 +145,8 @@ def main():
         # Typing line
         if current_word.wrong == False:
             typing_line_x = (current_word.x - 2) + text_surface.get_width()
-        else:
-            typing_line_x = (current_word.x - 2)
-
-        typing_line = pygame.Rect(typing_line_x, current_word.y, 2, 40)
-        pygame.draw.rect(WIN, (255, 192, 84), typing_line)
+            typing_line = pygame.Rect(typing_line_x, current_word.y, 2, 40)
+            pygame.draw.rect(WIN, (255, 192, 84), typing_line)
 
         pygame.display.update()
 
@@ -172,7 +168,8 @@ def main():
 
         if time_left == 0:
             run = False
-            post_game(wpm)
+            post_game(wpm, corr_words, incorr_words, curr_word_control,
+                corr_keyst, incorr_keyst, total_keyst)
 
         if started:
             if dur != 0:
@@ -214,9 +211,11 @@ def main():
                     else:
                         current_word.wrong = False
                         corr_keyst += 1
+                    total_keyst += 1
 
 
-def post_game(wpm):
+def post_game(wpm, corr_words, incorr_words, total_words,
+    corr_keyst, incorr_keyst, total_keyst):
     run = True
     click = False
 
@@ -225,8 +224,20 @@ def post_game(wpm):
         WIN.blit(BG, (0, 0))
         pos_x, pos_y = pygame.mouse.get_pos()
 
-        label_wpm = main_font.render(f"WPM: {int(wpm)}", 1, (255, 255, 255))
-        WIN.blit(label_wpm, ((WIDTH / 2) - 100, HEIGHT / 2))
+        # Words
+        x = (WIDTH / 4) + 100
+        y = (HEIGHT / 2)
+        perc = corr_words * 100 / total_words
+        label_words = main_font.render("Words", 1, (255, 255, 255))
+        WIN.blit(label_words, (x - (label_words.get_width() / 2), y - 200))
+        label_wpm = text_font.render(f"WPM: {int(wpm)}", 1, (255, 255, 255))
+        WIN.blit(label_wpm, (x - (label_wpm.get_width() / 2), y - 100))
+        label_perc = text_font.render(f"{int(perc)}%", 1, (255, 255, 255))
+        WIN.blit(label_perc, (x - (label_perc.get_width() / 2), y - 40))
+
+        # Keystrokes
+        label_keystrokes = main_font.render("Keystrokes", 1, (255, 255, 255))
+        WIN.blit(label_keystrokes, (((WIDTH / 4) * 3) - (label_words.get_width() / 2) - 100, HEIGHT / 2 - 200))
 
         pygame.display.update()
 
