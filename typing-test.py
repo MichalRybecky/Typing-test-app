@@ -13,7 +13,7 @@ WIDTH, HEIGHT = 1280, 720
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Typing Test")
 
-BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
+BG = pygame.image.load(os.path.join("assets", "bg2.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
 text_font = pygame.font.Font("abeezee.ttf", 35)
 
@@ -111,15 +111,7 @@ def main():
         WIN.blit(BG, (0, 0))
 
         dur_label = main_font.render(f"{time_left}", 1, white_c)
-        wpm_label = main_font.render(f"{int(wpm)}", 1, white_c)
         WIN.blit(dur_label, (30, 10))
-        WIN.blit(wpm_label, (WIDTH - 100, 10))
-
-        # Temporary labels for (in)correct words
-        # corr_label = main_font.render(f"{corr_keyst}", 1, white_c)
-        # incorr_label = main_font.render(f"{incorr_keyst}", 1, white_c)
-        # WIN.blit(corr_label, (30, HEIGHT - 70))
-        # WIN.blit(incorr_label, (WIDTH - 100, HEIGHT - 70))
 
         # BG for displayed words
         word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
