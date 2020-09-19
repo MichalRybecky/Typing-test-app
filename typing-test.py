@@ -17,6 +17,9 @@ BG = pygame.image.load(os.path.join("assets", "bg.jpeg"))
 main_font = pygame.font.Font("abeezee.ttf", 50)
 text_font = pygame.font.Font("abeezee.ttf", 35)
 
+white_c = (255, 255, 255)
+orange_c = (204, 102, 0)
+
 
 FPS = 144
 clock = pygame.time.Clock()
@@ -94,7 +97,7 @@ def main():
 
     dur = 0
     wpm = 0
-    time_left = 10
+    time_left = 2
     corr_words = 0
     incorr_words = 0
     corr_keyst = 0
@@ -107,16 +110,16 @@ def main():
     def redraw_window():
         WIN.blit(BG, (0, 0))
 
-        dur_label = main_font.render(f"{time_left}", 1, (255, 255, 255))
-        wpm_label = main_font.render(f"{int(wpm)}", 1, (255, 255, 255))
+        dur_label = main_font.render(f"{time_left}", 1, white_c)
+        wpm_label = main_font.render(f"{int(wpm)}", 1, white_c)
         WIN.blit(dur_label, (30, 10))
         WIN.blit(wpm_label, (WIDTH - 100, 10))
 
         # Temporary labels for (in)correct words
-        corr_label = main_font.render(f"{corr_keyst}", 1, (255, 255, 255))
-        incorr_label = main_font.render(f"{incorr_keyst}", 1, (255, 255, 255))
-        WIN.blit(corr_label, (30, HEIGHT - 70))
-        WIN.blit(incorr_label, (WIDTH - 100, HEIGHT - 70))
+        # corr_label = main_font.render(f"{corr_keyst}", 1, white_c)
+        # incorr_label = main_font.render(f"{incorr_keyst}", 1, white_c)
+        # WIN.blit(corr_label, (30, HEIGHT - 70))
+        # WIN.blit(incorr_label, (WIDTH - 100, HEIGHT - 70))
 
         # BG for displayed words
         word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
@@ -134,7 +137,7 @@ def main():
         for word in word_list:
             if 150 < word.y < 450:
                 if word.current and word.wrong == False:
-                    color = (255, 255, 255)
+                    color = white_c
                 elif word.wrong:
                     color = (255, 0, 0)
                 else:
@@ -146,7 +149,7 @@ def main():
         if current_word.wrong == False:
             typing_line_x = (current_word.x - 2) + text_surface.get_width()
             typing_line = pygame.Rect(typing_line_x, current_word.y, 2, 40)
-            pygame.draw.rect(WIN, (255, 192, 84), typing_line)
+            pygame.draw.rect(WIN, orange_c, typing_line)
 
         pygame.display.update()
 
@@ -224,20 +227,42 @@ def post_game(wpm, corr_words, incorr_words, total_words,
         WIN.blit(BG, (0, 0))
         pos_x, pos_y = pygame.mouse.get_pos()
 
+        # WPM and percentage
+        x = (WIDTH / 2)
+        y = (HEIGHT / 4)
+        perc = corr_keyst * 100 / total_keyst
+        label_wpm = main_font.render(f"WPM: {int(wpm)}", 1, white_c)
+        WIN.blit(label_wpm, (x - (label_wpm.get_width() / 2), y))
+        label_perc = main_font.render(f"{int(perc)}%", 1, white_c)
+        WIN.blit(label_perc, (x - (label_perc.get_width() / 2), y + 70))
+
         # Words
         x = (WIDTH / 4) + 100
         y = (HEIGHT / 2)
-        perc = corr_words * 100 / total_words
-        label_words = main_font.render("Words", 1, (255, 255, 255))
-        WIN.blit(label_words, (x - (label_words.get_width() / 2), y - 200))
-        label_wpm = text_font.render(f"WPM: {int(wpm)}", 1, (255, 255, 255))
-        WIN.blit(label_wpm, (x - (label_wpm.get_width() / 2), y - 100))
-        label_perc = text_font.render(f"{int(perc)}%", 1, (255, 255, 255))
-        WIN.blit(label_perc, (x - (label_perc.get_width() / 2), y - 40))
+        label_words = main_font.render("Words", 1, white_c)
+        WIN.blit(label_words, (x - (label_words.get_width() / 2), y))
+
+        word_line_rect = pygame.Rect(x - 150, y + 70, 300, 3)
+        pygame.draw.rect(WIN, orange_c, word_line_rect)
+
+        label_corr_words = text_font.render(f"Correct: {corr_words}", 1, white_c)
+        WIN.blit(label_corr_words, (x - (label_corr_words.get_width() / 2), y + 80))
+        label_incorr_words = text_font.render(f"Incorrect: {incorr_words}", 1, white_c)
+        WIN.blit(label_incorr_words, (x - (label_incorr_words.get_width() / 2), y + 140))
 
         # Keystrokes
-        label_keystrokes = main_font.render("Keystrokes", 1, (255, 255, 255))
-        WIN.blit(label_keystrokes, (((WIDTH / 4) * 3) - (label_words.get_width() / 2) - 100, HEIGHT / 2 - 200))
+        x = (WIDTH / 4) * 3 - 100
+        y = (HEIGHT / 2)
+        label_keystrokes = main_font.render("Keystrokes", 1, white_c)
+        WIN.blit(label_keystrokes, (x - (label_keystrokes.get_width() / 2), y))
+
+        keyst_line_rect = pygame.Rect(x - 150, y + 70, 300, 3)
+        pygame.draw.rect(WIN, orange_c, keyst_line_rect)
+
+        label_corr_words = text_font.render(f"Correct: {corr_keyst}", 1, white_c)
+        WIN.blit(label_corr_words, (x - (label_corr_words.get_width() / 2), y + 80))
+        label_incorr_words = text_font.render(f"Incorrect: {incorr_keyst}", 1, white_c)
+        WIN.blit(label_incorr_words, (x - (label_incorr_words.get_width() / 2), y + 140))
 
         pygame.display.update()
 
@@ -269,14 +294,14 @@ def main_menu():
         button_settings = pygame.Rect(
             (WIDTH / 2) - 160, (HEIGHT / 2), 320, 80)
 
-        pygame.draw.rect(WIN, (50, 75, 50), button_play)
-        pygame.draw.rect(WIN, (50, 75, 50), button_settings)
+        pygame.draw.rect(WIN, orange_c, button_play)
+        pygame.draw.rect(WIN, orange_c, button_settings)
 
         # Menu Labels
-        label_play = main_font.render("Play", 1, (255, 255, 255))
+        label_play = main_font.render("Play", 1, white_c)
         WIN.blit(label_play, ((WIDTH / 2) - 50, 275))
 
-        label_settings = main_font.render("Settings", 1, (255, 255, 255))
+        label_settings = main_font.render("Settings", 1, white_c)
         WIN.blit(label_settings, ((WIDTH / 2) - 90, 370))
 
         # Button Activations
@@ -320,10 +345,10 @@ def settings_menu():
         pygame.draw.rect(WIN, (50, 75, 50), button_settings)
 
         # Menu Labels
-        label_play = main_font.render("Play", 1, (255, 255, 255))
+        label_play = main_font.render("Play", 1, white_c)
         WIN.blit(label_play, ((WIDTH / 2) - 50, 275))
 
-        label_settings = main_font.render("Settings", 1, (255, 255, 255))
+        label_settings = main_font.render("Settings", 1, white_c)
         WIN.blit(label_settings, ((WIDTH / 2) - 90, 370))
 
         # Button Activations
@@ -337,5 +362,5 @@ def settings_menu():
 
 
 if __name__ == '__main__':
-    main()
+    main_menu()
     pygame.quit()
