@@ -83,7 +83,6 @@ def keystroke_validation(current_word, text): # Checks each keypress, if the key
 
 def main():
     run = True
-    click = False
     word_list = []
 
     text = ''
@@ -95,7 +94,7 @@ def main():
 
     dur = 0
     wpm = 0
-    time_left = 2
+    time_left = 60
     corr_words = 0
     incorr_words = 0
     corr_keyst = 0
@@ -108,8 +107,10 @@ def main():
     def redraw_window():
         WIN.blit(BG, (0, 0))
 
+        x = WIDTH / 2
+        y = 35
         dur_label = MAIN_FONT.render(f"{time_left}", 1, WHITE_C)
-        WIN.blit(dur_label, (30, 10))
+        WIN.blit(dur_label, (int(x - (dur_label.get_width() / 2)), y))
 
         # BG for displayed words
         word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
@@ -121,7 +122,7 @@ def main():
 
         # Typed text
         text_surface = TEXT_FONT.render(text, True, (0, 0, 0))
-        WIN.blit(text_surface, (250, 540))
+        WIN.blit(text_surface, (((WIDTH / 2) - 50), 540))
 
         # Displayed words
         for word in word_list:
@@ -162,7 +163,7 @@ def main():
         if time_left == 0:
             run = False
             post_game(wpm, corr_words, incorr_words,
-                corr_keyst, incorr_keyst, total_keyst)
+                      corr_keyst, incorr_keyst, total_keyst)
 
         if started:
             if dur != 0:
@@ -208,7 +209,7 @@ def main():
 
 
 def post_game(wpm, corr_words, incorr_words,
-    corr_keyst, incorr_keyst, total_keyst):
+              corr_keyst, incorr_keyst, total_keyst):
     run = True
     click = False
 
