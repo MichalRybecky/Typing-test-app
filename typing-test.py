@@ -6,7 +6,6 @@ import random
 import os
 import pygame
 
-
 pygame.init()
 
 WIDTH, HEIGHT = 1280, 720
@@ -19,7 +18,6 @@ TEXT_FONT = pygame.font.Font("abeezee.ttf", 35)
 
 WHITE_C = (255, 255, 255)
 ORANGE_C = (204, 102, 0)
-
 
 FPS = 60
 clock = pygame.time.Clock()
@@ -40,6 +38,19 @@ def collide(obj1, obj2):
     offset_x = obj2.x - obj1.x
     offset_y = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask, (offset_x, offset_y)) is not None
+
+
+def get_time_left(time_left):
+    minutes = 0
+    seconds = 0
+    if time_left % FPS == 0:
+        minutes = int(time_left / FPS)
+    elif time_left < FPS:
+        seconds = time_left
+    else:
+        minutes = int(time_left // FPS)
+        seconds = time_left - (minutes * FPS)
+    return [minutes, seconds]
 
 
 def get_words(quantity, words_number):
@@ -93,7 +104,7 @@ def main():
 
     dur = 0
     wpm = 0
-    time_left = 10
+    time_left = 80
     words_counter = [0, 0]
     keyst_counter = [0, 0, 0]
 
@@ -105,7 +116,20 @@ def main():
 
         x = WIDTH / 2
         y = 35
-        dur_label = MAIN_FONT.render(f"{time_left}", 1, WHITE_C)
+        # Duration label
+        if time_left >= FPS:
+            time_draw = get_time_left(time_left)
+            if time_draw[1] == 0:
+                seconds = "00"
+            elif time_draw[1] < 10:
+                seconds = f"0{time_draw[1]}"
+            else:
+                seconds = time_draw[1]
+            time = f"{time_draw[0]}:{seconds}"
+        else:
+            time = str(time_left)
+
+        dur_label = MAIN_FONT.render(time, 1, WHITE_C)
         WIN.blit(dur_label, (int(x - (dur_label.get_width() / 2)), y))
 
         # BG for displayed words
@@ -261,7 +285,6 @@ def post_game(wpm, words_counter, keyst_counter):
             if button_restart.collidepoint((pos_x, pos_y)):
                 run = False
                 main()
-
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
