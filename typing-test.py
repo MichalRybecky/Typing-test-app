@@ -129,8 +129,8 @@ def main():
         else:
             time = str(time_left)
 
-        dur_label = MAIN_FONT.render(time, 1, WHITE_C)
-        WIN.blit(dur_label, (int(x - (dur_label.get_width() / 2)), y))
+        time_label = MAIN_FONT.render(time, 1, WHITE_C)
+        WIN.blit(time_label, (int(x - (time_label.get_width() / 2)), y))
 
         # BG for displayed words
         word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
