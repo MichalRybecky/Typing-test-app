@@ -21,7 +21,7 @@ WHITE_C = (255, 255, 255)
 ORANGE_C = (204, 102, 0)
 
 
-FPS = 144
+FPS = 60
 clock = pygame.time.Clock()
 
 
@@ -74,11 +74,11 @@ def line_change(word_list): # Moves the words up a line
         word.y -= 62
 
 
-def keystroke_validation(current_word, text): # Checks each keypress, if the key is correct
+def keystroke_validation(current_word, text): # Checks if the key is correct
     text_lenght = len(text)
     curr_word_striped = current_word[:text_lenght]
-    if text != curr_word_striped:
-        return False
+    if text == curr_word_striped:
+        return True
 
 
 def main():
@@ -86,7 +86,6 @@ def main():
     word_list = []
 
     text = ''
-    word_control = 0
     clock_reg = 0
 
     started = False
@@ -94,12 +93,9 @@ def main():
 
     dur = 0
     wpm = 0
-    time_left = 60
-    corr_words = 0
-    incorr_words = 0
-    corr_keyst = 0
-    incorr_keyst = 0
-    total_keyst = 0
+    time_left = 10
+    words_counter = [0, 0]
+    keyst_counter = [0, 0, 0]
 
     word_list = get_words(300, 200)
     word_setup(word_list)
@@ -116,7 +112,7 @@ def main():
         word_rect = pygame.Rect(200, 150, (WIDTH - 400), (HEIGHT - 400))
         pygame.draw.rect(WIN, (150, 150, 150), word_rect)
 
-        # BG for typed words
+        # BG for typed text
         type_rect = pygame.Rect(200, 600, (WIDTH - 400), (HEIGHT - 800))
         pygame.draw.rect(WIN, (150, 150, 150), type_rect)
 
@@ -148,10 +144,8 @@ def main():
     while run:
         clock.tick(FPS)
 
-        for word in word_list:
-            if word.current:
-                word.current = False
-
+        # Gives current word
+        word_list[curr_word_control - 1].current = False
         current_word = word_list[curr_word_control]
         current_word.current = True
 
@@ -162,12 +156,11 @@ def main():
 
         if time_left == 0:
             run = False
-            post_game(wpm, corr_words, incorr_words,
-                      corr_keyst, incorr_keyst, total_keyst)
+            post_game(wpm, words_counter,keyst_counter)
 
         if started:
             if dur != 0:
-                wpm = corr_words / (dur / 60)
+                wpm = words_counter[0] / (dur / FPS)
             if clock_reg != 0:
                 if clock_reg % FPS == 0:
                     dur += 1
@@ -181,11 +174,11 @@ def main():
                 if event.key == pygame.K_SPACE or event.key == pygame.K_RETURN:
                     # Validation manipulation
                     if current_word.text == text:
-                        corr_words += 1
+                        words_counter[0] += 1
                     elif text == "":
                         break
                     else:
-                        incorr_words += 1
+                        words_counter[1] += 1
                         current_word.wrong = True
                     curr_word_control += 1
                     text = ''
@@ -199,17 +192,16 @@ def main():
                     text += event.unicode
                     if not started:
                         started = True
-                    if keystroke_validation(current_word.text, text) == False:
-                        incorr_keyst += 1
-                        current_word.wrong = True
-                    else:
+                    if keystroke_validation(current_word.text, text):
+                        keyst_counter[0] += 1
                         current_word.wrong = False
-                        corr_keyst += 1
-                    total_keyst += 1
+                    else:
+                        current_word.wrong = True
+                        keyst_counter[1] += 1
+                    keyst_counter[2] += 1
 
 
-def post_game(wpm, corr_words, incorr_words,
-              corr_keyst, incorr_keyst, total_keyst):
+def post_game(wpm, words_counter, keyst_counter):
     run = True
     click = False
 
@@ -221,7 +213,7 @@ def post_game(wpm, corr_words, incorr_words,
         # WPM and percentage
         x = (WIDTH / 2)
         y = (HEIGHT / 4)
-        perc = corr_keyst * 100 / total_keyst
+        perc = keyst_counter[0] * 100 / keyst_counter[2]
         label_wpm = MAIN_FONT.render(f"WPM: {int(wpm)}", 1, WHITE_C)
         WIN.blit(label_wpm, (x - (label_wpm.get_width() / 2), y))
         label_perc = MAIN_FONT.render(f"{int(perc)}%", 1, WHITE_C)
@@ -236,9 +228,9 @@ def post_game(wpm, corr_words, incorr_words,
         word_line_rect = pygame.Rect(x - 150, y + 70, 300, 3)
         pygame.draw.rect(WIN, ORANGE_C, word_line_rect)
 
-        label_corr_words = TEXT_FONT.render(f"Correct: {corr_words}", 1, WHITE_C)
+        label_corr_words = TEXT_FONT.render(f"Correct: {words_counter[0]}", 1, WHITE_C)
         WIN.blit(label_corr_words, (x - (label_corr_words.get_width() / 2), y + 80))
-        label_incorr_words = TEXT_FONT.render(f"Incorrect: {incorr_words}", 1, WHITE_C)
+        label_incorr_words = TEXT_FONT.render(f"Incorrect: {words_counter[1]}", 1, WHITE_C)
         WIN.blit(label_incorr_words, (x - (label_incorr_words.get_width() / 2), y + 140))
 
         # Keystrokes
@@ -250,9 +242,9 @@ def post_game(wpm, corr_words, incorr_words,
         keyst_line_rect = pygame.Rect(x - 150, y + 70, 300, 3)
         pygame.draw.rect(WIN, ORANGE_C, keyst_line_rect)
 
-        label_corr_words = TEXT_FONT.render(f"Correct: {corr_keyst}", 1, WHITE_C)
+        label_corr_words = TEXT_FONT.render(f"Correct: {keyst_counter[0]}", 1, WHITE_C)
         WIN.blit(label_corr_words, (x - (label_corr_words.get_width() / 2), y + 80))
-        label_incorr_words = TEXT_FONT.render(f"Incorrect: {incorr_keyst}", 1, WHITE_C)
+        label_incorr_words = TEXT_FONT.render(f"Incorrect: {keyst_counter[1]}", 1, WHITE_C)
         WIN.blit(label_incorr_words, (x - (label_incorr_words.get_width() / 2), y + 140))
 
         # Restart button
@@ -289,7 +281,6 @@ def post_game(wpm, corr_words, incorr_words,
                     main()
 
 
-
 def main_menu():
     run = True
     click = False
@@ -320,9 +311,9 @@ def main_menu():
             if button_play.collidepoint((pos_x, pos_y)):
                 run = False
                 main()
-            if button_settings.collidepoint((pos_x, pos_y)):
-                run = False
-                settings_menu()
+            # if button_settings.collidepoint((pos_x, pos_y)):
+            #     run = False
+            #     settings_menu()
 
         pygame.display.update()
 
@@ -339,42 +330,42 @@ def main_menu():
                     click = False
 
 
-def settings_menu():
-    run = True
-    click = False
+# def settings_menu():
+#     run = True
+#     click = False
 
-    while run:
-        clock.tick(FPS)
-        WIN.blit(BG, (0, 0))
-        pos_x, pos_y = pygame.mouse.get_pos()
+#     while run:
+#         clock.tick(FPS)
+#         WIN.blit(BG, (0, 0))
+#         pos_x, pos_y = pygame.mouse.get_pos()
 
-        # Menu Buttons
-        button = pygame.Rect(
-            (WIDTH / 2) - 160, (HEIGHT / 2) - 100, 320, 80)
-        button_settings = pygame.Rect(
-            (WIDTH / 2) - 160, (HEIGHT / 2), 320, 80)
+#         # Menu Buttons
+#         button = pygame.Rect(
+#             (WIDTH / 2) - 160, (HEIGHT / 2) - 100, 320, 80)
+#         button_settings = pygame.Rect(
+#             (WIDTH / 2) - 160, (HEIGHT / 2), 320, 80)
 
-        pygame.draw.rect(WIN, (50, 75, 50), button_play)
-        pygame.draw.rect(WIN, (50, 75, 50), button_settings)
+#         pygame.draw.rect(WIN, (50, 75, 50), button_play)
+#         pygame.draw.rect(WIN, (50, 75, 50), button_settings)
 
-        # Menu Labels
-        label_play = MAIN_FONT.render("Play", 1, WHITE_C)
-        WIN.blit(label_play, ((WIDTH / 2) - 50, 275))
+#         # Menu Labels
+#         label_play = MAIN_FONT.render("Play", 1, WHITE_C)
+#         WIN.blit(label_play, ((WIDTH / 2) - 50, 275))
 
-        label_settings = MAIN_FONT.render("Settings", 1, WHITE_C)
-        WIN.blit(label_settings, ((WIDTH / 2) - 90, 370))
+#         label_settings = MAIN_FONT.render("Settings", 1, WHITE_C)
+#         WIN.blit(label_settings, ((WIDTH / 2) - 90, 370))
 
-        # Button Activations
-        if click:
-            if button_play.collidepoint((pos_x, pos_y)):
-                run = False
-                main()
+#         # Button Activations
+#         if click:
+#             if .collidepoint((pos_x, pos_y)):
+#                 run = False
+#                 main()
 
-            if button_settings.collidepoint((pos_x, pos_y)):
-                run = False
-                settings_menu()
+#             if button_settings.collidepoint((pos_x, pos_y)):
+#                 run = False
+#                 settings_menu()
 
-        pygame.display.update()
+#         pygame.display.update()
 
 
 if __name__ == '__main__':
